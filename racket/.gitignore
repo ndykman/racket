@@ -6,12 +6,14 @@
 /lib/
 /share/
 /man/
+/pkg-src
 
 # Windows and OSX executables
 /*.app
-/*.exe
+**/*.exe
 
 # Windows linking and debugging
+**/*.obj
 /*.pdb
 /*.ilk
 /*.suo
@@ -32,3 +34,4 @@
 # location for cached DrDr report files
 /house-calls/
 
+**/.vscode
