@@ -8,7 +8,7 @@
 /man/
 
 # A common place to put cloned pkg sources that have their own repository
-/pkg-src
+/extra-pkgs
 
 # Windows and OSX executables
 /*.app
