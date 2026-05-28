@@ -7,20 +7,19 @@
 /share/
 /man/
 
-# A common place to put cloned pkg sources that have their own repository
-/extra-pkgs
-
 # Windows and OSX executables
 /*.app
-**/*.exe
+/*.exe
 
 # Windows linking and debugging
-**/*.obj
-**/*.pdb
-**/*.ilk
-**/*.suo
-**/*.lib
-**/*.exp
+/*.pdb
+/*.ilk
+/*.suo
+/*.lib
+/*.exp
+/lib/*.pdb
+/lib/*.ilk
+/lib/*.suo
 /lib/GRacket.exe.manifest
 /Racket.exe.manifest
 
@@ -33,5 +32,3 @@
 # location for cached DrDr report files
 /house-calls/
 
-# Ignore .vscode directories 
-**/.vscode
