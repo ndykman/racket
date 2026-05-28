@@ -73810,7 +73810,10 @@
           'variable-reference->namespace
           "variable-reference?"
           vr_0))
-       (let ((ns_0 (variable-reference->namespace* vr_0)))
+       (let ((ns_0
+              (variable-reference->namespace*
+               'variable-reference->namespace
+               vr_0)))
          (let ((mpi_0 (namespace-mpi ns_0)))
            (begin
              (if (non-self-module-path-index? mpi_0)
@@ -73830,17 +73833,37 @@
                    temp6_0)))
                (void))
              ns_0)))))))
+(define check-got-ns
+  (lambda (who_0 vr_0 maybe-ns_0)
+    (begin
+      (if (1/namespace? maybe-ns_0)
+        (void)
+        (raise-arguments-error
+         who_0
+         "variable reference has no associated namespace"
+         "variable reference"
+         vr_0
+         "hint"
+         (unquoted-printing-string
+          "is the variable reference from a non-module, non-top-level linklet?")))
+      maybe-ns_0)))
 (define variable-reference->namespace*
-  (lambda (vr_0)
+  (lambda (who_0 vr_0)
     (let ((inst_0 (variable-reference->instance vr_0)))
       (if (symbol? inst_0)
         (let ((app_0 (list 'quote inst_0)))
           (1/module->namespace
            app_0
-           (instance-data (variable-reference->instance vr_0 #t))))
+           (check-got-ns
+            who_0
+            vr_0
+            (instance-data (variable-reference->instance vr_0 #t)))))
         (if (not inst_0)
-          (instance-data (variable-reference->instance vr_0 #t))
-          (instance-data inst_0))))))
+          (check-got-ns
+           who_0
+           vr_0
+           (instance-data (variable-reference->instance vr_0 #t)))
+          (check-got-ns who_0 vr_0 (instance-data inst_0)))))))
 (define 1/variable-reference->module-path-index
   (|#%name|
    variable-reference->module-path-index
@@ -73852,7 +73875,11 @@
           'variable-reference->module-path-index
           "variable-reference?"
           vr_0))
-       (let ((mpi_0 (namespace-mpi (variable-reference->namespace* vr_0))))
+       (let ((mpi_0
+              (namespace-mpi
+               (variable-reference->namespace*
+                'variable-reference->module-path-index
+                vr_0))))
          (if (eq? top-level-module-path-index mpi_0) #f mpi_0))))))
 (define 1/variable-reference->resolved-module-path
   (|#%name|
@@ -73878,7 +73905,10 @@
           'variable-reference->module-source
           "variable-reference?"
           vr_0))
-       (let ((ns_0 (variable-reference->namespace* vr_0)))
+       (let ((ns_0
+              (variable-reference->namespace*
+               'variable-reference->module-source
+               vr_0)))
          (namespace-source-name ns_0))))))
 (define 1/variable-reference->phase
   (|#%name|
@@ -73891,7 +73921,8 @@
           'variable-reference->phase
           "variable-reference?"
           vr_0))
-       (namespace-phase (variable-reference->namespace* vr_0))))))
+       (namespace-phase
+        (variable-reference->namespace* 'variable-reference->phase vr_0))))))
 (define 1/variable-reference->module-base-phase
   (|#%name|
    variable-reference->module-base-phase
@@ -73903,7 +73934,10 @@
           'variable-reference->module-base-phase
           "variable-reference?"
           vr_0))
-       (namespace-0-phase (variable-reference->namespace* vr_0))))))
+       (namespace-0-phase
+        (variable-reference->namespace*
+         'variable-reference->module-base-phase
+         vr_0))))))
 (define 1/variable-reference->module-declaration-inspector
   (|#%name|
    variable-reference->module-declaration-inspector
@@ -73924,7 +73958,9 @@
          (void))
        (let ((or-part_0
               (namespace-declaration-inspector
-               (variable-reference->namespace* vr_0))))
+               (variable-reference->namespace*
+                'variable-reference->module-declaration-inspector
+                vr_0))))
          (if or-part_0
            or-part_0
            (raise-arguments-error
