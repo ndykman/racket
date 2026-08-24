@@ -1186,13 +1186,13 @@ static void init_thread_attr_procs()
   HMODULE hm;
   hm = GetModuleHandle("kernel32.dll");
 
-  EnterCriticalSection(&rktio_global_cs);
+  // EnterCriticalSection(&rktio_global_cs);
 
   rktio_InitializeProcThreadAttributeList = (rktio_InitializeProcThreadAttributeList_t)GetProcAddress(hm, "InitializeProcThreadAttributeList");
   rktio_UpdateProcThreadAttribute = (rktio_UpdateProcThreadAttribute_t)GetProcAddress(hm, "UpdateProcThreadAttribute");
   rktio_DeleteProcThreadAttributeList = (rktio_DeleteProcThreadAttributeList_t)GetProcAddress(hm, "DeleteProcThreadAttributeList");
 
-  LeaveCriticalSection(&rktio_global_cs);
+  // LeaveCriticalSection(&rktio_global_cs);
 }
 
 static intptr_t do_spawnv(rktio_t *rktio,
