@@ -107,10 +107,13 @@ static void init_iconv()
   wchar_t *p;
   int hook_handle = 0;
 
-  WaitForSingleObject(rktio_global_lock, INFINITE);
+  if (iconv_is_ready)
+    return;
+
+  EnterCriticalSection(&rktio_global_cs);
 
   if (iconv_is_ready) {
-    ReleaseSemaphore(rktio_global_lock, 1, NULL);
+    LeaveCriticalSection(&rktio_global_cs);
     return;
   }
 
@@ -205,28 +208,25 @@ static void init_iconv()
     else
       iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
     if (!iconv_errno) {
-      /* The iconv.dll distributed with Racket links to "msvcrt.dll"
-	 on x86, and to "ucrtbase.dll" otherwise.
-	 It's a slightly dangerous assumption that whatever
-	 iconv we found also uses that DLL. */
-# if defined(_M_IX86)
-      m = LoadLibraryW(L"msvcrt.dll");
-# else
-      m = LoadLibraryW(L"ucrtbase.dll");
-# endif
+
+      // See if the Micrsoft UCRT is loaded; if not, fallback to msvcrt.dll
+      m = GetModuleHandle(UCRT_DLL);
+      if (m == NULL)
+        m = GetModuleHandle(MSVCRT_DLL);
+
       if (m) {
-	iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
-	if (!iconv_errno) {
-	  iconv = NULL;
-	  iconv_open = NULL;
-	  iconv_close = NULL;
-	}
+	      iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
+	      if (!iconv_errno) {
+	        iconv = NULL;
+	        iconv_open = NULL;
+	        iconv_close = NULL;
+	      }
       }
     }
   }
 
   iconv_is_ready = 1;
-  ReleaseSemaphore(rktio_global_lock, 1, NULL);
+  LeaveCriticalSection(&rktio_global_cs);
 }
 
 rktio_char16_t *rktio_get_dll_path(rktio_char16_t *s)

@@ -486,5 +486,11 @@ void rktio_set_console_handler(void);
 /* A lazy solution to some lazy-initialization synchronization,
    depends on the first call to rktio_init() not being concurrent
    (as does some other initialization for Windows): */
-extern HANDLE rktio_global_lock;
+extern CRITICAL_SECTION rktio_global_cs;
+
+#define VCRUNTIME_DLL "VCRUNTIME140.dll"
+#define VCRUNTIME_1_DLL "VCRUNTIME140_1.dll"
+#define UCRT_DLL "ucrtbase.dll"
+#define MSVCRT_DLL "msvcrt.dll"
+
 #endif
