@@ -1,4 +1,6 @@
+
 (load-relative "loadtest.rktl")
+
 (load-relative "core-tests.rktl")
 
 (load-in-sandbox "setup.rktl")
@@ -15,6 +17,7 @@
 (load-in-sandbox "string.rktl")
 (load-in-sandbox "treelist.rktl")
 (load-in-sandbox "fasl.rktl")
+
 (load-in-sandbox "async-channel.rktl")
 (load-in-sandbox "pathlib.rktl")
 (load-in-sandbox "filelib.rktl")
@@ -38,12 +41,14 @@
 (load-in-sandbox "trait.rktl")
 (load-in-sandbox "promise.rktl")
 (load-in-sandbox "future.rktl")
+
 (load-in-sandbox "moddep.rktl")
 (load-in-sandbox "boundmap-test.rktl")
 (load-in-sandbox "id-table-test.rktl")
 (load-in-sandbox "id-set-test.rktl")
 (load-in-sandbox "cm.rktl")
 (load-in-sandbox "module-reader.rktl")
+
 (load-in-sandbox "version.rktl")
 (load-in-sandbox "foreign-test.rktl")
 (load-in-sandbox "cstruct.rktl")
