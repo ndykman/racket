@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #ifdef OS_X
-# define MACOS_UNICODE_SUPPORT
+#define MACOS_UNICODE_SUPPORT
 #endif
 
 #include <locale.h>
@@ -117,8 +117,10 @@ static void init_iconv()
     return;
   }
 
+  
   /* bundled iconv may depend on vcruntime140 as also bundled, so try
      loading that as bundled, just in case */
+
   if (!rktio_load_library("vcruntime140.dll")) {
     p = rktio_get_dll_path(L"vcruntime140.dll");
     if (p) {
@@ -129,98 +131,95 @@ static void init_iconv()
 
   /* Try potentially embedded, first: */
   m = rktio_load_library(A_PRIMARY_ICONV_DLL);
-  if (m)
-    hook_handle = 1;
-  if (!m) {
-    m = rktio_load_library(A_SECONDARY_ICONV_DLL);
-    if (m)
-      hook_handle = 1;
-  }
-
-  if (!m) {
-    p = rktio_get_dll_path(PRIMARY_ICONV_DLL);
-    if (p) {
-      m = LoadLibraryW(p);
-      free(p);
-    } else
-      m = NULL;
-  }
-
-  if (!m) {
-    p = rktio_get_dll_path(SECONDARY_ICONV_DLL);
-    if (p) {
-      m = LoadLibraryW(p);
-      free(p);
-    } else
-      m = NULL;
-  }
-
-  if (!m) {
-    p = rktio_get_dll_path(FALLBACK1_ICONV_DLL);
-    if (p) {
-      m = LoadLibraryW(p);
-      free(p);
-    } else
-      m = NULL;
-  }
-
-  if (!m) {
-    p = rktio_get_dll_path(FALLBACK2_ICONV_DLL);
-    if (p) {
-      m = LoadLibraryW(p);
-      free(p);
-    } else
-      m = NULL;
-  }
-
-  if (!m)
-    m = LoadLibraryW(PRIMARY_ICONV_DLL);
-  if (!m)
-    m = LoadLibraryW(SECONDARY_ICONV_DLL);
-  if (!m)
-    m = LoadLibraryW(FALLBACK1_ICONV_DLL);
-  if (!m)
-    m = LoadLibraryW(FALLBACK2_ICONV_DLL);
-
   if (m) {
-    if (hook_handle) {
-      iconv = (iconv_proc_t)rktio_get_proc_address(m, "libiconv");
-      iconv_open = (iconv_open_proc_t)rktio_get_proc_address(m, "libiconv_open");
-      iconv_close = (iconv_close_proc_t)rktio_get_proc_address(m, "libiconv_close");
-      locale_charset = (locale_charset_proc_t)rktio_get_proc_address(m, "locale_charset");
-    } else {
-      iconv = (iconv_proc_t)GetProcAddress(m, "libiconv");
-      iconv_open = (iconv_open_proc_t)GetProcAddress(m, "libiconv_open");
-      iconv_close = (iconv_close_proc_t)GetProcAddress(m, "libiconv_close");
-      locale_charset = (locale_charset_proc_t)GetProcAddress(m, "locale_charset");
-    }
-    /* Make sure we have all of them or none: */
-    if (!iconv || !iconv_open || !iconv_close) {
-      iconv = NULL;
-      iconv_open = NULL;
-      iconv_close = NULL;
-    }
+    hook_handle = 1;
+    goto iconv_loaded;
+  }
+
+  m = rktio_load_library(A_SECONDARY_ICONV_DLL);
+  if (m) {
+    hook_handle = 1;
+    goto iconv_loaded;
+  }
+
+  p = rktio_get_dll_path(PRIMARY_ICONV_DLL);
+  if (p) {
+    m = LoadLibraryW(p);
+    free(p);
+    goto iconv_loaded;
+  } 
+
+  p = rktio_get_dll_path(SECONDARY_ICONV_DLL);
+  if (p) {
+    m = LoadLibraryW(p);
+    free(p);
+    goto iconv_loaded;
+  }
+
+  p = rktio_get_dll_path(FALLBACK1_ICONV_DLL);
+  if (p) {
+    m = LoadLibraryW(p);
+    free(p);
+    goto iconv_loaded;
+  }
+
+  p = rktio_get_dll_path(FALLBACK2_ICONV_DLL);
+  if (p) {
+    m = LoadLibraryW(p);
+    free(p);
+    goto iconv_loaded;
+  }
+
+  m = LoadLibraryW(PRIMARY_ICONV_DLL);
+  if (m)
+    goto iconv_loaded;
+ 
+  m = LoadLibraryW(SECONDARY_ICONV_DLL);
+  if (m)
+    goto iconv_loaded;
+ 
+  m = LoadLibraryW(FALLBACK1_ICONV_DLL);
+  if (m)
+    goto iconv_loaded;
+  
+  m = LoadLibraryW(FALLBACK2_ICONV_DLL);
+  if (m)
+    goto iconv_loaded;
+
+  // iconv not loaded, set the procs to null and return.
+  iconv = NULL;
+  iconv_open = NULL;
+  iconv_close = NULL;
+  return;
+
+  iconv_loaded:
+
+  if (hook_handle) {
+    iconv = (iconv_proc_t)rktio_get_proc_address(m, "libiconv");
+    iconv_open = (iconv_open_proc_t)rktio_get_proc_address(m, "libiconv_open");
+    iconv_close = (iconv_close_proc_t)rktio_get_proc_address(m, "libiconv_close");
+    locale_charset = (locale_charset_proc_t)rktio_get_proc_address(m, "locale_charset");
+    iconv_errno = (errno_proc_t)rktio_get_proc_address(m, "_errno");
+  } else {
+    iconv = (iconv_proc_t)GetProcAddress(m, "libiconv");
+    iconv_open = (iconv_open_proc_t)GetProcAddress(m, "libiconv_open");
+    iconv_close = (iconv_close_proc_t)GetProcAddress(m, "libiconv_close");
+    locale_charset = (locale_charset_proc_t)GetProcAddress(m, "locale_charset");
+    iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
   }
   
-  if (iconv) {
-    if (hook_handle)
-      iconv_errno = (errno_proc_t)rktio_get_proc_address(m, "_errno");
-    else
+  if (!iconv_errno) {
+    // See if the Micrsoft UCRT is loaded; if not, fallback to msvcrt.dll
+    m = GetModuleHandle(UCRT_DLL);
+    if (m == NULL)
+      m = GetModuleHandle(MSVCRT_DLL);
+
+    if (m) {
       iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
-    if (!iconv_errno) {
-
-      // See if the Micrsoft UCRT is loaded; if not, fallback to msvcrt.dll
-      m = GetModuleHandle(UCRT_DLL);
-      if (m == NULL)
-        m = GetModuleHandle(MSVCRT_DLL);
-
-      if (m) {
-	      iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
-	      if (!iconv_errno) {
-	        iconv = NULL;
-	        iconv_open = NULL;
-	        iconv_close = NULL;
-	      }
+      if (!iconv_errno) {
+        iconv = NULL;
+        iconv_open = NULL;
+        iconv_close = NULL;
       }
     }
   }

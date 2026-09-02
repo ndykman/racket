@@ -5,16 +5,20 @@
 #include "rktio_platform.h"
 
 #ifdef RKTIO_SYSTEM_WINDOWS
-# if _WIN32_WINNT < 0x602
-#  undef _WIN32_WINNT
-#  define _WIN32_WINNT 0x602
-# endif
-# include <winsock2.h>
-# include <windows.h>
+#if _WIN32_WINNT < 0x602
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x602
 #endif
+
+#include <winsock2.h>
+#include <windows.h>
+#include <VersionHelpers.h>
+#endif
+
 #ifdef RKTIO_USE_PTHREADS
 # include <pthread.h>
 #endif
+
 #ifdef RKTIO_USE_XLOCALE
 # ifdef RKTIO_USE_XLOCALE_HEADER
 #  include <xlocale.h>
