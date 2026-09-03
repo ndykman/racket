@@ -5514,7 +5514,12 @@ static void save_errno_values(int kind)
      `errno`. */
   if (!get_errno_ptr) {
     HMODULE hm;
-    hm = LoadLibrary("msvcrt.dll");
+    #if defined(_M_IX86)
+      hm = LoadLibraryW(L"msvcrt.dll");
+    #else
+      hm = LoadLibraryW(L"ucrtbase.dll");
+    #endif
+    
     if (hm) {
       get_errno_ptr = (get_errno_ptr_t)GetProcAddress(hm, "_errno");
     }
