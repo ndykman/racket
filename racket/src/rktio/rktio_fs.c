@@ -92,14 +92,12 @@ static void init_procs()
     HMODULE hm;
 
     procs_inited = 1;
-    
-    hm = LoadLibraryW(L"kernel32.dll");
 
-    CreateSymbolicLinkProc = (CreateSymbolicLinkProc_t)GetProcAddress(hm, "CreateSymbolicLinkW");
-    DeviceIoControlProc = (DeviceIoControlProc_t)GetProcAddress(hm, "DeviceIoControl");
-    GetFinalPathNameByHandleProc = (GetFinalPathNameByHandle_t)GetProcAddress(hm, "GetFinalPathNameByHandleW");
-
-    FreeLibrary(hm);
+    // All these APIs are available since Windows Vista, so just use 
+    // the direct pointers. 
+    CreateSymbolicLinkProc = (CreateSymbolicLinkProc_t) &CreateSymbolicLinkW;
+    DeviceIoControlProc = (DeviceIoControlProc_t) &DeviceIoControl;
+    GetFinalPathNameByHandleProc = (GetFinalPathNameByHandle_t) &GetFinalPathNameByHandleW;
   }
 }
 #endif

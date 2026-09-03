@@ -39,6 +39,7 @@ void rktio_syslog_clean(rktio_t *rktio)
 #ifdef RKTIO_SYSTEM_WINDOWS
   if (rktio->hEventLog != INVALID_HANDLE_VALUE)
     CloseHandle(rktio->hEventLog);
+    FreeLibrary("advapi32.dll");
 #endif
 }
 
