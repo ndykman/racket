@@ -209,11 +209,8 @@ static void init_iconv()
   }
   
   if (!iconv_errno) {
-    // See if the Micrsoft UCRT is loaded; if not, fallback to msvcrt.dll
-    m = GetModuleHandle(UCRT_DLL);
-    if (m == NULL)
-      m = GetModuleHandle(MSVCRT_DLL);
-
+   
+    m = GetModuleHandle(NULL);
     if (m) {
       iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
       if (!iconv_errno) {
