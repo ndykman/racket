@@ -209,7 +209,11 @@ static void init_iconv()
   }
   
   if (!iconv_errno) {
-      iconv_errno = (errno_proc_t) _errno;
+      HANDLE m = LoadLibrary("ucrtbase.dll");
+      if (!m)
+        m = LoadLibrary("msvcrt.dll");
+
+      iconv_errno = (errno_proc_t) GetProcAddress(m, "_errno");
       if (!iconv_errno) {
         iconv = NULL;
         iconv_open = NULL;
