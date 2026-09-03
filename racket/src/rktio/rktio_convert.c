@@ -8,7 +8,7 @@
 #endif
 
 #include <locale.h>
-#include <errno.h>
+
 #if !defined(RKTIO_SYSTEM_WINDOWS) && !defined(RKTIO_NO_ICONV)
 # include <iconv.h>
 # include <langinfo.h>
@@ -209,18 +209,14 @@ static void init_iconv()
   }
   
   if (!iconv_errno) {
-   
-    m = GetModuleHandle(NULL);
-    if (m) {
-      iconv_errno = (errno_proc_t)GetProcAddress(m, "_errno");
+      iconv_errno = (errno_proc_t) _errno;
       if (!iconv_errno) {
         iconv = NULL;
         iconv_open = NULL;
         iconv_close = NULL;
       }
     }
-  }
-
+  
   iconv_is_ready = 1;
   LeaveCriticalSection(&rktio_global_cs);
 }
