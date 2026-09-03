@@ -209,7 +209,9 @@ static void init_iconv()
   }
   
   if (!iconv_errno) {
-      HANDLE m = GetModuleHandle(NULL);
+      HANDLE m = GetModuleHandle("ucrtbase.dll");
+      if (!m)
+        m = GetModuleHandle("msvcrt.dll");
 
       iconv_errno = (errno_proc_t) GetProcAddress(m, "_errno");
       if (!iconv_errno) {
